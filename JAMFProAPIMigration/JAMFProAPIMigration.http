@@ -1,0 +1,6 @@
+@JAMFProAPIMigration_HostAddress = http://localhost:5067
+
+GET {{JAMFProAPIMigration_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
