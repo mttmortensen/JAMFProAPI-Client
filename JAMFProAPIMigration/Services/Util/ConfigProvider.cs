@@ -1,6 +1,6 @@
 ﻿namespace JAMFProAPIMigration.Services.Util
 {
-    public record ConfigProvider
+    public static class ConfigProvider
     {
         private static readonly string JAMF_URL = Environment.GetEnvironmentVariable("JAMF_URL");
         private static readonly string CLIENT_ID = Environment.GetEnvironmentVariable("JAMF_CLIENT_ID");
