@@ -1,19 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Xml.Linq;
+﻿using JAMFProAPIMigration.Services.Util;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using JAMFProAPIMigration.Interfacers;
+using System.Xml.Linq;
 
 namespace JAMFProAPIMigration.Services.Core 
 {
-    public abstract class ApiManager : IConfigProvider
+    public abstract class ApiManager 
     {
-        private static readonly string JAMF_URL = Environment.GetEnvironmentVariable("JAMF_URL");
-        private static readonly string CLIENT_ID = Environment.GetEnvironmentVariable("JAMF_CLIENT_ID");
-        private static readonly string CLIENT_SECRET = Environment.GetEnvironmentVariable("JAMF_CLIENT_SECRET");
-
-        public static string GetJAMFURL() => JAMF_URL;
-        public static string GetCLIENT_ID() => CLIENT_ID;
-        public static string GetCLIENT_SECRET() => CLIENT_SECRET;
 
         protected static async Task<HttpClient> CreateHttpClientAsync()
         {
@@ -30,7 +23,7 @@ namespace JAMFProAPIMigration.Services.Core
             return new HttpRequestMessage
             {
                 Method = method,
-                RequestUri = new Uri($"{JAMF_URL}{endpoint}"),
+                RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}{endpoint}"),
                 Headers = { { "accept", contentType } }
             };
         }

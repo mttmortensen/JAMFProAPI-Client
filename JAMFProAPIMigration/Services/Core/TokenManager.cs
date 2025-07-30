@@ -1,19 +1,11 @@
-﻿using System.Net.Http.Headers;
-using JAMFProAPIMigration.Interfacers;
+﻿using JAMFProAPIMigration.Services.Util;
 using Newtonsoft.Json.Linq;
+using System.Net.Http.Headers;
 
 namespace JAMFProAPIMigration.Services.Core 
 {
-    public class TokenManager : IConfigProvider
+    public class TokenManager
     {
-        private static readonly string JAMF_URL = Environment.GetEnvironmentVariable("JAMF_URL");
-        private static readonly string CLIENT_ID = Environment.GetEnvironmentVariable("JAMF_CLIENT_ID");
-        private static readonly string CLIENT_SECRET = Environment.GetEnvironmentVariable("JAMF_CLIENT_SECRET");
-
-        public static string GetJAMFURL() => JAMF_URL;
-        public static string GetCLIENT_ID() => CLIENT_ID;
-        public static string GetCLIENT_SECRET() => CLIENT_SECRET;
-
         private static long lastCheckedTokenEpoch = 0; // Tracks the last logged token validity message
         private static string accessToken;
         private static long tokenExpirationEpoch;
@@ -32,12 +24,12 @@ namespace JAMFProAPIMigration.Services.Core
 
                 var requestData = new FormUrlEncodedContent(new[]
                 {
-                new KeyValuePair<string, string>("client_id", GetCLIENT_ID()),
+                new KeyValuePair<string, string>("client_id", ConfigProvider.GetCLIENT_ID()),
                 new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                new KeyValuePair<string, string>("client_secret", GetCLIENT_SECRET())
+                new KeyValuePair<string, string>("client_secret", ConfigProvider.GetCLIENT_SECRET())
             });
 
-                var response = await client.PostAsync($"{GetJAMFURL()}/api/oauth/token", requestData);
+                var response = await client.PostAsync($"{ConfigProvider.GetJAMFURL()}/api/oauth/token", requestData);
                 var content = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
