@@ -1,4 +1,5 @@
-﻿using JAMFProAPIMigration.Services.Util;
+﻿using JAMFProAPIMigration.Interfaces;
+using JAMFProAPIMigration.Services.Util;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 
@@ -7,6 +8,13 @@ namespace JAMFProAPIMigration.Services.Core
 {
     public class LAPS : ApiManager
     {
+
+        private readonly IComputerService _comService;
+
+        public LAPS(IComputerService comService)
+        {
+            _comService = comService;
+        }
 
         // Method to retrieve LAPS settings
         public static async Task GetLAPSSettings()
@@ -97,10 +105,10 @@ namespace JAMFProAPIMigration.Services.Core
         }
 
         // Process Function to retrieve LAPS accounts using Computer Name
-        public static async Task ProcessLAPSAccounts(string computerName)
+        public async Task ProcessLAPSAccounts(string computerName)
         {
             // Step 1: Get Computer ID by name
-            var computerId = await GetComputerIdByName(computerName);
+            var computerId = await _comService.GetComputerIdByName(computerName);
             if (string.IsNullOrEmpty(computerId))
             {
                 Console.WriteLine($"Could not find computer ID for {computerName}. Aborting process.");
@@ -108,7 +116,7 @@ namespace JAMFProAPIMigration.Services.Core
             }
 
             // Step 2: Get Management ID by Computer ID
-            var managementId = await GetManagementIdByComputerId(computerId);
+            var managementId = await _comService.GetManagementIdByComputerId(computerId);
             if (string.IsNullOrEmpty(managementId))
             {
                 Console.WriteLine($"Could not find management ID for computer ID {computerId}. Aborting process.");
@@ -144,9 +152,9 @@ namespace JAMFProAPIMigration.Services.Core
         }
 
         // Method to get all computers without LAPS enabled
-        public static async Task<List<string>> GetComputersWithoutLAPSUsers()
+        public async Task<List<string>> GetComputersWithoutLAPSUsers()
         {
-            var allComputers = await GetAllComputers();
+            var allComputers = await _comService.GetAllComputers();
 
             if (allComputers.Count == 0)
             {
@@ -159,7 +167,7 @@ namespace JAMFProAPIMigration.Services.Core
             foreach (var (computerId, computerName) in allComputers)
             {
                 // Step 1: Get Management ID for the computer
-                var managementId = await GetManagementIdByComputerId(computerId);
+                var managementId = await _comService.GetManagementIdByComputerId(computerId);
                 if (string.IsNullOrEmpty(managementId))
                 {
                     Console.WriteLine($"Management ID not found for computer {computerName} (ID: {computerId}). Skipping.");
