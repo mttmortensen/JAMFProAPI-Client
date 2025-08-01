@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using JAMFProAPIMigration.Services.Core;
 
-namespace JAMFProAPIMigration.Services
+namespace JAMFProAPIMigration.Services.Core
 {
     public class FileVault2 : ApiManager
     {
