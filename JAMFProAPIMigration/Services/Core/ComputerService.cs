@@ -6,13 +6,14 @@ namespace JAMFProAPIMigration.Services.Core
 {
     public class ComputerService: IComputerService
     {
+
         // Method to retrieve computer ID based on computer name
         public async Task<string> GetComputerIdByName(string computerName)
         {
 
-            using (var client = await CreateHttpClientAsync())
+            using (var client = await ApiManager.CreateHttpClientAsync())
             {
-                var request = CreateRequest(HttpMethod.Get, $"/JSSResource/computers/match/{computerName}", "application/xml");
+                var request = ApiManager.CreateRequest(HttpMethod.Get, $"/JSSResource/computers/match/{computerName}", "application/xml");
 
                 using (var response = await client.SendAsync(request))
                 {
@@ -57,9 +58,9 @@ namespace JAMFProAPIMigration.Services.Core
         // Add a method to retrieve the management ID based on computer ID
         public async Task<string> GetManagementIdByComputerId(string computerId)
         {
-            using (var client = await CreateHttpClientAsync())
+            using (var client = await ApiManager.CreateHttpClientAsync())
             {
-                var request = CreateRequest(HttpMethod.Get, $"/api/v1/computers-inventory/{computerId}");
+                var request = ApiManager.CreateRequest(HttpMethod.Get, $"/api/v1/computers-inventory/{computerId}");
 
                 using (var response = await client.SendAsync(request))
                 {
@@ -95,9 +96,9 @@ namespace JAMFProAPIMigration.Services.Core
 
         public async Task<List<(string computerId, string computerName)>> GetAllComputers()
         {
-            using (var client = await CreateHttpClientAsync())
+            using (var client = await ApiManager.CreateHttpClientAsync())
             {
-                var request = CreateRequest(HttpMethod.Get, "/JSSResource/computers");
+                var request = ApiManager.CreateRequest(HttpMethod.Get, "/JSSResource/computers");
 
                 using (var response = await client.SendAsync(request))
                 {
@@ -144,9 +145,9 @@ namespace JAMFProAPIMigration.Services.Core
         // Method to get all computers from Jamf inventory (BETA)
         public async Task<List<(string computerId, string managementId)>> GetAllManagementIds()
         {
-            using (var client = await CreateHttpClientAsync())
+            using (var client = await ApiManager.CreateHttpClientAsync())
             {
-                var request = CreateRequest(HttpMethod.Get, "/api/v1/computers-inventory");
+                var request = ApiManager.CreateRequest(HttpMethod.Get, "/api/v1/computers-inventory");
 
                 using (var response = await client.SendAsync(request))
                 {
