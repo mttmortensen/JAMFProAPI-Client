@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using JAMFProAPIMigration.Services.Util;
 
 namespace JAMFProAPIMigration.Services.Core
 {
@@ -14,7 +15,7 @@ namespace JAMFProAPIMigration.Services.Core
                 var token = await TokenManager.GetTokenAsync();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.GetAsync($"{GetJAMFURL()}/api/v1/computers-inventory/{computerId}/view-recovery-lock-password");
+                var response = await client.GetAsync($"{ConfigProvider.GetJAMFURL()}/api/v1/computers-inventory/{computerId}/view-recovery-lock-password");
                 var content = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
@@ -55,7 +56,7 @@ namespace JAMFProAPIMigration.Services.Core
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{GetJAMFURL()}/api/v2/mdm/commands"),
+                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/mdm/commands"),
                     Headers =
                 {
                     { "accept", "application/json" },

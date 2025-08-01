@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using JAMFProAPIMigration.Services.Util;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 
 
@@ -18,7 +19,7 @@ namespace JAMFProAPIMigration.Services.Core
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{GetJAMFURL()}/api/v2/local-admin-password/settings"),
+                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/settings"),
                     Headers =
                 {
                     { "accept", "application/json" },
@@ -62,7 +63,7 @@ namespace JAMFProAPIMigration.Services.Core
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{GetJAMFURL()}/api/v2/local-admin-password/pending-rotations"),
+                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/pending-rotations"),
                     Headers =
                 {
                     { "accept", "application/json" },
@@ -120,7 +121,7 @@ namespace JAMFProAPIMigration.Services.Core
                 var token = await TokenManager.GetTokenAsync();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.GetAsync($"{GetJAMFURL()}/api/v2/local-admin-password/{managementId}/accounts");
+                var response = await client.GetAsync($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/{managementId}/accounts");
                 var content = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
