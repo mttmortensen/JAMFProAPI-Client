@@ -10,7 +10,7 @@ namespace JAMFProAPIMigration.Services.Core
         private static string accessToken;
         private static long tokenExpirationEpoch;
 
-        public static async Task<string> GetTokenAsync()
+        public async Task<string> GetTokenAsync()
         {
             await CheckTokenExpiration();
             return accessToken;
