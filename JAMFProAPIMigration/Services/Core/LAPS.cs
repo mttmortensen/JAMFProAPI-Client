@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 
 namespace JAMFProAPIMigration.Services.Core
 {
-    public class LAPS : ApiManager
+    public class LAPS
     {
 
         private readonly IComputerService _comService;
@@ -175,9 +175,9 @@ namespace JAMFProAPIMigration.Services.Core
                 }
 
                 // Step 2: Check LAPS accounts for the computer
-                using (var client = await CreateHttpClientAsync())
+                using (var client = await ApiManager.CreateHttpClientAsync())
                 {
-                    var request = CreateRequest(HttpMethod.Get, $"/api/v2/local-admin-password/{managementId}/accounts");
+                    var request = ApiManager.CreateRequest(HttpMethod.Get, $"/api/v2/local-admin-password/{managementId}/accounts");
 
                     using (var response = await client.SendAsync(request))
                     {
