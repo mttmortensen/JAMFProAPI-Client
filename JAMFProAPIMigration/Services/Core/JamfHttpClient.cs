@@ -30,6 +30,16 @@ namespace JAMFProAPIMigration.Services.Core
             throw new NotImplementedException();
         }
 
+        private HttpRequestMessage CreateRequest(HttpMethod method, string endpoint, string contentType = "application/json")
+        {
+            var request = new HttpRequestMessage(method, endpoint);
 
+            request.Headers.Accept.Add
+                (
+                    new MediaTypeWithQualityHeaderValue(contentType)
+                );
+
+            return request;
+        }
     }
 }
