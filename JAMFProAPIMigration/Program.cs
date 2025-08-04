@@ -1,6 +1,7 @@
-using JAMFProAPIMigration.Controllers;
+using System.Net.Http.Headers;
 using JAMFProAPIMigration.Interfaces;
 using JAMFProAPIMigration.Services.Core;
+using JAMFProAPIMigration.Services.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,19 @@ builder.Services.AddScoped<FileVault2>();
 builder.Services.AddScoped<LAPS>();
 builder.Services.AddScoped<RecoveryKeys>();
 builder.Services.AddScoped<IComputerService, ComputerService>();
+
+// JamfHttpClient registeration 
+builder.Services
+    .AddHttpClient<IJamfHttpClient, JamfHttpClient>(client => 
+    {
+        // Base URL
+        client.BaseAddress = new Uri(ConfigProvider.GetJAMFURL());
+
+        // default Accpet header for all reqs
+        client.DefaultRequestHeaders
+        .Accept
+        .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    });
 
 builder.Services.AddControllers();
 
