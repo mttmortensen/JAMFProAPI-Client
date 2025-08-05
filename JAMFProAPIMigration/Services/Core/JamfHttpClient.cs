@@ -17,9 +17,24 @@ namespace JAMFProAPIMigration.Services.Core
             _tokenManager = tokenManager;
         }
 
-        public Task<T> GetAsync<T>(string endpoint) 
+        public async Task<T> GetAsync<T>(string endpoint) 
         {
-            throw new NotImplementedException();
+            // 1. --- Grab the token ---
+            var token = await _tokenManager.GetTokenAsync();
+
+            // 2. --- Build out req skeleton --- 
+            var request = CreateRequest(HttpMethod.Get, endpoint);
+
+            // 3. --- Attach Bearer token to headers for Request ---
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // 4. --- Sending the GET response ---
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            // 5. --- Deserialize JSON into C# Obj i.e. <T> ---
+            var stream = await response.Content.ReadAsStreamAsync();
+            return await JsonSerializer.DeserializeAsync<T>(stream);
         }
 
         public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload)
