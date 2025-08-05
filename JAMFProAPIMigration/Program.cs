@@ -13,6 +13,7 @@ builder.Services.AddScoped<FileVault2>();
 builder.Services.AddScoped<LAPS>();
 builder.Services.AddScoped<RecoveryKeys>();
 builder.Services.AddScoped<IComputerService, ComputerService>();
+builder.Services.AddScoped<IJamfHttpClient, JamfHttpClient>();
 
 // JamfHttpClient registeration 
 builder.Services
