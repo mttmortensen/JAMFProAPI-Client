@@ -7,11 +7,18 @@ namespace JAMFProAPIMigration.Services.Core
     public class ComputerService: IComputerService
     {
 
+        private readonly IJamfHttpClient _client;
+
+        public ComputerService(IJamfHttpClient client)
+        {
+            _client = client;
+        }
+
         // Method to retrieve computer ID based on computer name
         public async Task<string> GetComputerIdByName(string computerName)
         {
 
-            using (var client = await ApiManager.CreateHttpClientAsync())
+            using (var client = await _client.GetAsync())
             {
                 var request = ApiManager.CreateRequest(HttpMethod.Get, $"/JSSResource/computers/match/{computerName}", "application/xml");
 
