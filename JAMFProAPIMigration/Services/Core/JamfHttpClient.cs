@@ -83,10 +83,19 @@ namespace JAMFProAPIMigration.Services.Core
             var token = await _tokenManager.GetTokenAsync();
 
             // 2. Build out a req with the method + url + Accept header
+            var request = CreateRequest(HttpMethod.Get, endpoint, accept);
+
             // 3. Add Auth: Bearer <token>
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer ", token);
+
             // 4. Send it with the _client
+            var response = await _client.SendAsync(request);
+
             // 5. Throw if not 2XX 
+            response.EnsureSuccessStatusCode();
+
             // 6. Return raw body as a string
+            return await response.Content.ReadAsStringAsync();
         }
 
 
