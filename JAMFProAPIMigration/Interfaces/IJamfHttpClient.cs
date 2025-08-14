@@ -11,5 +11,8 @@
         // And TResponse is the type we expect to come out. 
         Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload);
 
+
+        // A raw GET that allows me to pick the Accept header
+        Task<string> GetStringAsync(string endpoint, string accept = "application/json");
     }
 }
