@@ -81,6 +81,12 @@ namespace JAMFProAPIMigration.Services.Core
         {
             // 1. Ask TokenManager for a fresh token each call
             var token = await _tokenManager.GetTokenAsync();
+
+            // 2. Build out a req with the method + url + Accept header
+            // 3. Add Auth: Bearer <token>
+            // 4. Send it with the _client
+            // 5. Throw if not 2XX 
+            // 6. Return raw body as a string
         }
 
 
