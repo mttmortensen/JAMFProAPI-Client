@@ -45,39 +45,18 @@ namespace JAMFProAPIMigration.Services.Core
         // Add a method to retrieve the management ID based on computer ID
         public async Task<string> GetManagementIdByComputerId(string computerId)
         {
-            using (var client = await ApiManager.CreateHttpClientAsync())
+            var content = await _client.GetStringAsync($"/api/v1/computers-inventory/{computerId}");
+
+            try 
             {
-                var request = ApiManager.CreateRequest(HttpMethod.Get, $"/api/v1/computers-inventory/{computerId}");
-
-                using (var response = await client.SendAsync(request))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Failed to retrieve computer inventory. Status code: {response.StatusCode}");
-                        return null;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        var managementId = json["general"]?["managementId"]?.ToString();
-
-                        if (string.IsNullOrEmpty(managementId))
-                        {
-                            Console.WriteLine("Management ID not found for the specified computer ID.");
-                            return null;
-                        }
-
-                        Console.WriteLine($"Management ID for Computer ID {computerId}: {managementId}");
-                        return managementId;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                        return null;
-                    }
-                }
+                var json = JObject.Parse(content);
+                var managementId = json["general"]?["managementId"]?.ToString();
+                return string.IsNullOrEmpty(managementId) ? null : managementId;
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+                return null;
             }
         }
 
