@@ -44,7 +44,7 @@ namespace JAMFProAPIMigration.Services.Core
             var token = await _tokenManager.GetTokenAsync();
 
             // --- 2. Build the request skeleton ---
-            var request = CreateRequest(HttpMethod.Get, endpoint);
+            var request = CreateRequest(HttpMethod.Post, endpoint);
 
             // --- 3. Attach the JSON body ---
             //  A. Turn the payload object into a JSON string: 
@@ -75,6 +75,12 @@ namespace JAMFProAPIMigration.Services.Core
             // Helps it make more generic of a response vs something specific. 
             return await JsonSerializer.DeserializeAsync<TResponse>(stream);
             
+        }
+
+        public async Task<string> GetStringAsync(string endpoint, string accept = "application/json")
+        {
+            // 1. Ask TokenManager for a fresh token each call
+            var token = await _tokenManager.GetTokenAsync();
         }
 
 
