@@ -17,49 +17,29 @@ namespace JAMFProAPIMigration.Services.Core
         // Method to retrieve computer ID based on computer name
         public async Task<string> GetComputerIdByName(string computerName)
         {
+            // 1. Ask our client to GET the Classic API with Accept: XML
+            var content = await _client.GetStringAsync
+                (
+                    $"/JSSResource/computers/match/{computerName}",
+                    accept: "application/xml"
+                );
 
-            using (var client = await _client.GetAsync())
+            // 2. Parse the XML 
+            try 
             {
-                var request = ApiManager.CreateRequest(HttpMethod.Get, $"/JSSResource/computers/match/{computerName}", "application/xml");
+                var xml = XDocument.Parse(content);
+                var computerElement = xml.Descendants("computer").FirstOrDefault();
+                if (computerElement == null) return null;
 
-                using (var response = await client.SendAsync(request))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Failed to retrieve computer ID. Status code: {response.StatusCode}");
-                        return null;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var xml = XDocument.Parse(content);
-                        var computerElement = xml.Descendants("computer").FirstOrDefault();
-
-                        if (computerElement == null)
-                        {
-                            Console.WriteLine("Computer not found for the specified name.");
-                            return null;
-                        }
-
-                        var computerId = computerElement.Element("id")?.Value;
-
-                        if (string.IsNullOrEmpty(computerId))
-                        {
-                            Console.WriteLine("Computer ID not found for the specified name.");
-                            return null;
-                        }
-
-                        Console.WriteLine($"Computer ID for {computerName}: {computerId}");
-                        return computerId;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing XML: {ex.Message}");
-                        return null;
-                    }
-                }
+                var computerId = computerElement.Element("id")?.Value;
+                return string.IsNullOrEmpty(computerId) ? null : computerId;
             }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Error pasrsing XML: {ex.Message}");
+                return null;
+            }
+            
         }
 
         // Add a method to retrieve the management ID based on computer ID
