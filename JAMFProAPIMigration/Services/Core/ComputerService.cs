@@ -45,138 +45,84 @@ namespace JAMFProAPIMigration.Services.Core
         // Add a method to retrieve the management ID based on computer ID
         public async Task<string> GetManagementIdByComputerId(string computerId)
         {
-            using (var client = await ApiManager.CreateHttpClientAsync())
+            var content = await _client.GetStringAsync($"/api/v1/computers-inventory/{computerId}");
+
+            try 
             {
-                var request = ApiManager.CreateRequest(HttpMethod.Get, $"/api/v1/computers-inventory/{computerId}");
-
-                using (var response = await client.SendAsync(request))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Failed to retrieve computer inventory. Status code: {response.StatusCode}");
-                        return null;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        var managementId = json["general"]?["managementId"]?.ToString();
-
-                        if (string.IsNullOrEmpty(managementId))
-                        {
-                            Console.WriteLine("Management ID not found for the specified computer ID.");
-                            return null;
-                        }
-
-                        Console.WriteLine($"Management ID for Computer ID {computerId}: {managementId}");
-                        return managementId;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                        return null;
-                    }
-                }
+                var json = JObject.Parse(content);
+                var managementId = json["general"]?["managementId"]?.ToString();
+                return string.IsNullOrEmpty(managementId) ? null : managementId;
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+                return null;
             }
         }
 
+        // Future update: Turning the turple into a Dto Model 
+        // Get
         public async Task<List<(string computerId, string computerName)>> GetAllComputers()
         {
-            using (var client = await ApiManager.CreateHttpClientAsync())
+            var content = await _client.GetStringAsync("/JSSResource/computers", accept: "application/json");
+
+            try 
             {
-                var request = ApiManager.CreateRequest(HttpMethod.Get, "/JSSResource/computers");
+                var json = JObject.Parse(content);
+                var computers = json["computers"] as JArray;
 
-                using (var response = await client.SendAsync(request))
+                var result = new List<(string computerId, string computerName)>();
+                if(computers != null ) 
                 {
-                    if (!response.IsSuccessStatusCode)
+                    foreach (var computer in computers) 
                     {
-                        Console.WriteLine($"Failed to retrieve computers. Status code: {response.StatusCode}");
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"Error details: {errorContent}");
-                        return new List<(string computerId, string computerName)>();
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        var computers = json["computers"] as JArray;
-                        var result = new List<(string computerId, string computerName)>();
-
-                        if (computers != null)
+                        var id = computer["id"]?.ToString();
+                        var name = computer["name"]?.ToString();
+                        if(!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(name)) 
                         {
-                            foreach (var computer in computers)
-                            {
-                                var computerId = computer["id"]?.ToString();
-                                var computerName = computer["name"]?.ToString();
-
-                                if (!string.IsNullOrEmpty(computerId) && !string.IsNullOrEmpty(computerName))
-                                {
-                                    result.Add((computerId, computerName));
-                                }
-                            }
+                            result.Add((id, name));
                         }
-
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                        return new List<(string computerId, string computerName)>();
                     }
                 }
+
+                return result;
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+                return new List<(string, string)>();
             }
         }
 
         // Method to get all computers from Jamf inventory (BETA)
+        // Future: Another DTO will be applied for Com and Mang Ids
         public async Task<List<(string computerId, string managementId)>> GetAllManagementIds()
         {
-            using (var client = await ApiManager.CreateHttpClientAsync())
+            var content = await _client.GetStringAsync("/api/v1/computers-inventory");
+
+            try 
             {
-                var request = ApiManager.CreateRequest(HttpMethod.Get, "/api/v1/computers-inventory");
+                var json = JObject.Parse(content);
+                var computers = json["computers"] as JArray;
 
-                using (var response = await client.SendAsync(request))
+                var result = new List<(string computerId, string managementId)>();
+                if (computers != null)
                 {
-                    if (!response.IsSuccessStatusCode)
+                    foreach (var computer in computers) 
                     {
-                        Console.WriteLine($"Failed to retrieve computers inventory. Status code: {response.StatusCode}");
-                        return null;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        var computers = json["computers"] as JArray;
-                        var result = new List<(string computerId, string managementId)>();
-
-                        if (computers != null)
-                        {
-                            foreach (var computer in computers)
-                            {
-                                var computerId = computer["id"]?.ToString();
-                                var managementId = computer["general"]?["managementId"]?.ToString();
-                                if (!string.IsNullOrEmpty(computerId) && !string.IsNullOrEmpty(managementId))
-                                {
-                                    result.Add((computerId, managementId));
-                                }
-                            }
-                        }
-
-                        Console.WriteLine("Computers Retrieved:");
-                        foreach (var computer in result)
-                        {
-                            Console.WriteLine($"Computer ID: {computer.computerId}, Management ID: {computer.managementId}");
-                        }
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                        return null;
+                        var id = computer["id"]?.ToString();
+                        var mgmId = computer["general"]?["managementId"]?.ToString();
+                        if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(mgmId))
+                            result.Add((id, mgmId));
                     }
                 }
+
+                return result;
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+                return new List<(string, string)>();
             }
         }
     }
