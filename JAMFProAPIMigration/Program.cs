@@ -9,7 +9,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddScoped<TokenManager>();
-builder.Services.AddScoped<FileVault2>();
+builder.Services.AddScoped<IFileVault2, FileVault2>();
 builder.Services.AddScoped<LAPS>();
 builder.Services.AddScoped<RecoveryKeys>();
 builder.Services.AddScoped<IComputerService, ComputerService>();
