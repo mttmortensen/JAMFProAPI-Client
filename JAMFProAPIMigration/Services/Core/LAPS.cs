@@ -10,97 +10,45 @@ namespace JAMFProAPIMigration.Services.Core
     {
 
         private readonly IComputerService _comService;
+        private readonly IJamfHttpClient _client;
 
-        public LAPS(IComputerService comService)
+        public LAPS(IComputerService comService, IJamfHttpClient client)
         {
             _comService = comService;
+            _client = client;
         }
 
         // Method to retrieve LAPS settings
-        public static async Task GetLAPSSettings()
+        public async Task GetLAPSSettings()
         {
-            using (var client = new HttpClient())
+            var content = await _client.GetStringAsync("/api/v2/local-admin-password/settings");
+
+            try
             {
-                var token = await TokenManager.GetTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/settings"),
-                    Headers =
-                {
-                    { "accept", "application/json" },
-                },
-                };
-
-                using (var response = await client.SendAsync(request))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Failed to retrieve LAPS settings. Status code: {response.StatusCode}");
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"Error details: {errorContent}");
-                        return;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        Console.WriteLine("LAPS Settings:");
-                        Console.WriteLine(json.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                    }
-                }
+                var json = JObject.Parse(content);
+                Console.WriteLine("LAPS Settings:");
+                Console.WriteLine(json.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
             }
         }
 
         // Method to retrieve devices with pending LAPS rotations
-        public static async Task GetPendingLAPSRotations()
+        public async Task GetPendingLAPSRotations()
         {
-            using (var client = new HttpClient())
+            var content = await _client.GetStringAsync("/api/v2/local-admin-password/pending-rotations");
+
+            try
             {
-                var token = await TokenManager.GetTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/pending-rotations"),
-                    Headers =
-                {
-                    { "accept", "application/json" },
-                },
-                };
-
-                using (var response = await client.SendAsync(request))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Failed to retrieve devices with pending LAPS rotations. Status code: {response.StatusCode}");
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"Error details: {errorContent}");
-                        return;
-                    }
-
-                    var content = await response.Content.ReadAsStringAsync();
-
-                    try
-                    {
-                        var json = JObject.Parse(content);
-                        Console.WriteLine("Devices with Pending LAPS Rotations:");
-                        Console.WriteLine(json.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                    }
-                }
+                var json = JObject.Parse(content);
+                Console.WriteLine("Devices with Pending LAPS Rotations:");
+                Console.WriteLine(json.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
             }
         }
 
