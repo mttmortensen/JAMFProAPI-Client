@@ -1,14 +1,24 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
+﻿using JAMFProAPIMigration.Interfaces;
 using JAMFProAPIMigration.Services.Util;
+using Newtonsoft.Json.Linq;
+using System.Net.Http.Headers;
 
 namespace JAMFProAPIMigration.Services.Core
 {
-    public class RecoveryKeys : ApiManager
+    public class RecoveryKeys : IRecoveryKeys
     {
 
+        private readonly IComputerService _comService;
+        private readonly IJamfHttpClient _client;
+
+        public RecoveryKeys(IComputerService comService, IJamfHttpClient client) 
+        {
+            _comService = comService;
+            _client = client;
+        }
+
         // Method to retrieve the recovery key if available
-        public static async Task<string> GetRecoveryKeyById(string computerId)
+        public async Task<string> GetRecoveryKeyById(string computerId)
         {
             using (var client = new HttpClient())
             {
@@ -39,7 +49,7 @@ namespace JAMFProAPIMigration.Services.Core
         }
 
         // Method to remove the recovery key if it exists
-        public static async Task RemoveRecoveryKeyIfExists(string computerId)
+        public async Task RemoveRecoveryKeyIfExists(string computerId)
         {
             var recoveryKey = await GetRecoveryKeyById(computerId);
             if (string.IsNullOrEmpty(recoveryKey))
@@ -87,7 +97,7 @@ namespace JAMFProAPIMigration.Services.Core
         }
 
         // Process Function that will pull some of the methods above without creating any dependencies
-        public static async Task ProcessRecoveryKeyRemoval(string computerName)
+        public async Task ProcessRecoveryKeyRemoval(string computerName)
         {
             // Step 1: Get Computer ID by name
             var computerId = await GetComputerIdByName(computerName);
