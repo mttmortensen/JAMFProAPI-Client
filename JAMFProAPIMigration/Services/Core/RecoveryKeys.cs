@@ -1,4 +1,5 @@
 ﻿using JAMFProAPIMigration.Interfaces;
+using JAMFProAPIMigration.Models.DTOs;
 using JAMFProAPIMigration.Services.Util;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
@@ -38,49 +39,8 @@ namespace JAMFProAPIMigration.Services.Core
         // Method to remove the recovery key if it exists
         public async Task RemoveRecoveryKeyIfExists(string computerId)
         {
+            //  0. Bail early if there is no key to start with
             var recoveryKey = await GetRecoveryKeyById(computerId);
-            if (string.IsNullOrEmpty(recoveryKey))
-            {
-                Console.WriteLine("No recovery key to remove.");
-                return;
-            }
-
-            using (var client = new HttpClient())
-            {
-                var token = await TokenManager.GetTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{ConfigProvider.GetJAMFURL()}/api/v2/mdm/commands"),
-                    Headers =
-                {
-                    { "accept", "application/json" },
-                },
-                    Content = new StringContent($"{{\"command\": \"ClearRecoveryLock\", \"computerIds\": [\"{computerId}\"]}}")
-                    {
-                        Headers =
-                    {
-                        ContentType = new MediaTypeHeaderValue("application/json")
-                    }
-                    }
-                };
-
-                using (var response = await client.SendAsync(request))
-                {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine("Recovery key has been successfully removed.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Failed to remove recovery key. Status code: {response.StatusCode}");
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"Error details: {errorContent}");
-                    }
-                }
-            }
         }
 
         // Process Function that will pull some of the methods above without creating any dependencies
