@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 
 namespace JAMFProAPIMigration.Services.Core
 {
-    public class LAPS
+    public class LAPS : ILAPS
     {
 
         private readonly IComputerService _comService;
@@ -72,30 +72,18 @@ namespace JAMFProAPIMigration.Services.Core
             }
 
             // Step 3: Retrieve LAPS accounts using Management ID
-            using (var client = new HttpClient())
+
+            var content = await _client.GetStringAsync("/api/v2/local-admin-password/{managementId}/accounts");
+
+            try
             {
-                var token = await TokenManager.GetTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await client.GetAsync($"{ConfigProvider.GetJAMFURL()}/api/v2/local-admin-password/{managementId}/accounts");
-                var content = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Failed to retrieve LAPS accounts. Status code: {response.StatusCode}");
-                    return;
-                }
-
-                try
-                {
-                    var lapsJson = JObject.Parse(content);
-                    Console.WriteLine("LAPS Accounts:");
-                    Console.WriteLine(lapsJson.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                }
+                var lapsJson = JObject.Parse(content);
+                Console.WriteLine("LAPS Accounts:");
+                Console.WriteLine(lapsJson.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
             }
         }
 
@@ -123,35 +111,23 @@ namespace JAMFProAPIMigration.Services.Core
                 }
 
                 // Step 2: Check LAPS accounts for the computer
-                using (var client = await ApiManager.CreateHttpClientAsync())
+                
+                var content = await _client.GetStringAsync("/api/v2/local-admin-password/{managementId}/accounts");
+
+                try
                 {
-                    var request = ApiManager.CreateRequest(HttpMethod.Get, $"/api/v2/local-admin-password/{managementId}/accounts");
+                    var json = JObject.Parse(content);
+                    var accounts = json["results"] as JArray;
 
-                    using (var response = await client.SendAsync(request))
+                    // Check if only "jamf_manage" account exists
+                    if (accounts != null && accounts.Count == 1 && accounts[0]["username"]?.ToString() == "jamf_manage")
                     {
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            Console.WriteLine($"Failed to retrieve LAPS accounts for {computerName}. Status code: {response.StatusCode}");
-                            continue;
-                        }
-
-                        var content = await response.Content.ReadAsStringAsync();
-                        try
-                        {
-                            var json = JObject.Parse(content);
-                            var accounts = json["results"] as JArray;
-
-                            // Check if only "jamf_manage" account exists
-                            if (accounts != null && accounts.Count == 1 && accounts[0]["username"]?.ToString() == "jamf_manage")
-                            {
-                                computersWithoutLAPS.Add(computerName);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error parsing JSON for {computerName}: {ex.Message}");
-                        }
+                        computersWithoutLAPS.Add(computerName);
                     }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing JSON for {computerName}: {ex.Message}");
                 }
             }
 
