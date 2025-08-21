@@ -20,32 +20,19 @@ namespace JAMFProAPIMigration.Services.Core
         // Method to retrieve the recovery key if available
         public async Task<string> GetRecoveryKeyById(string computerId)
         {
-            using (var client = new HttpClient())
+
+            var content = await _client.GetStringAsync("/api/v1/computers-inventory/{computerId}/view-recovery-lock-password");
+            var json = JObject.Parse(content);
+            var recoveryKey = json["recoveryLockPassword"]?.ToString();
+
+            if (string.IsNullOrEmpty(recoveryKey))
             {
-                var token = await TokenManager.GetTokenAsync();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await client.GetAsync($"{ConfigProvider.GetJAMFURL()}/api/v1/computers-inventory/{computerId}/view-recovery-lock-password");
-                var content = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Failed to retrieve recovery key. Status code: {response.StatusCode}");
-                    return null;
-                }
-
-                var json = JObject.Parse(content);
-                var recoveryKey = json["recoveryLockPassword"]?.ToString();
-
-                if (string.IsNullOrEmpty(recoveryKey))
-                {
-                    Console.WriteLine("No recovery key found.");
-                    return null;
-                }
-
-                Console.WriteLine($"Recovery key retrieved successfully: {recoveryKey} ");
-                return recoveryKey;
+                Console.WriteLine("No recovery key found.");
+                return null;
             }
+
+            Console.WriteLine($"Recovery key retrieved successfully: {recoveryKey} ");
+            return recoveryKey;
         }
 
         // Method to remove the recovery key if it exists
