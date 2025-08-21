@@ -11,7 +11,7 @@ builder.Configuration
 builder.Services.AddScoped<TokenManager>();
 builder.Services.AddScoped<IFileVault2, FileVault2>();
 builder.Services.AddScoped<ILAPS, LAPS>();
-builder.Services.AddScoped<RecoveryKeys>();
+builder.Services.AddScoped<IRecoveryKeys, RecoveryKeys>();
 builder.Services.AddScoped<IComputerService, ComputerService>();
 builder.Services.AddScoped<IJamfHttpClient, JamfHttpClient>();
 
