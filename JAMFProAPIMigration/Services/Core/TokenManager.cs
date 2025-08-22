@@ -1,10 +1,11 @@
-﻿using JAMFProAPIMigration.Services.Util;
+﻿using JAMFProAPIMigration.Interfaces;
+using JAMFProAPIMigration.Services.Util;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 
 namespace JAMFProAPIMigration.Services.Core 
 {
-    public class TokenManager
+    public class TokenManager : ITokenManager
     {
         private static long lastCheckedTokenEpoch = 0; // Tracks the last logged token validity message
         private static string accessToken;

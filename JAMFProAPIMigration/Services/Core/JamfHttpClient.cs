@@ -9,9 +9,9 @@ namespace JAMFProAPIMigration.Services.Core
     public class JamfHttpClient : IJamfHttpClient
     {
         private readonly HttpClient _client;
-        private readonly TokenManager _tokenManager;
+        private readonly ITokenManager _tokenManager;
 
-        public JamfHttpClient(HttpClient client, TokenManager tokenManager)
+        public JamfHttpClient(HttpClient client, ITokenManager tokenManager)
         {
             _client = client;
             _tokenManager = tokenManager;
