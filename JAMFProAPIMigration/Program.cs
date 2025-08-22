@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-builder.Services.AddScoped<TokenManager>();
+builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IFileVault2, FileVault2>();
 builder.Services.AddScoped<ILAPS, LAPS>();
 builder.Services.AddScoped<IRecoveryKeys, RecoveryKeys>();
