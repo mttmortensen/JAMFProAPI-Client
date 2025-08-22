@@ -41,13 +41,45 @@ namespace JAMFProAPIMigration.Services.Core
         {
             //  0. Bail early if there is no key to start with
             var recoveryKey = await GetRecoveryKeyById(computerId);
+            if (string.IsNullOrEmpty(recoveryKey))
+            {
+                Console.WriteLine("No recovery key to remove");
+                return;
+            }
+
+            // 1. Build out the request dto 
+            var payload = new MdmCommandRequest
+            {
+                command = "ClearRecoveryLock",
+                computerIds = new[] { computerId }
+            };
+
+            // 2. Send it through the wrapper, throws if Jamf returns non-2xx
+            try 
+            {
+                // Testing for what response comes back. Object as TResponse
+                var result = await _client.PostAsync<MdmCommandRequest, MdmCommandResponse>("/api/v2/mdm/commands", payload);
+
+                // 3. Success
+                Console.WriteLine("Recovery key has been successfully remove.");
+                Console.WriteLine(result);
+            }
+            // 4. Non-2xx or network errs bubble up as excptions because of EnsureSuccessStatusCode
+            catch (HttpRequestException ex) 
+            {
+                Console.WriteLine($"Failed to remove recovery key: {ex.Message}");
+            }
+            catch (TaskCanceledException ex) 
+            {
+                Console.WriteLine($"Request timed out while removing recovery key: {ex.Message}");
+            }
         }
 
         // Process Function that will pull some of the methods above without creating any dependencies
         public async Task ProcessRecoveryKeyRemoval(string computerName)
         {
             // Step 1: Get Computer ID by name
-            var computerId = await GetComputerIdByName(computerName);
+            var computerId = await _comService.GetComputerIdByName(computerName);
             if (string.IsNullOrEmpty(computerId))
             {
                 Console.WriteLine($"Could not find computer ID for {computerName}. Aborting process.");
