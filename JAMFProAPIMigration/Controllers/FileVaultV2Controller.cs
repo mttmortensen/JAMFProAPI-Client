@@ -1,6 +1,7 @@
 ﻿using JAMFProAPIMigration.Interfaces;
 using JAMFProAPIMigration.Services.Core;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace JAMFProAPIMigration.Controllers
 {
@@ -16,9 +17,14 @@ namespace JAMFProAPIMigration.Controllers
         }
 
         [HttpGet("users")]
-        public IActionResult GetAllFV2Users()
+        public async Task<IActionResult> GetAllFV2Users()
         {
-            var users = _fv2Service.GetFileVaultInventoryAsync();
+            var users = await _fv2Service.GetFileVaultInventoryAsync();
+
+            if (users == null)
+                return NotFound();
+
+            return Ok(users);
         }
     }
 }
