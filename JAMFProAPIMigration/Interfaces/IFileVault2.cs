@@ -1,7 +1,9 @@
-﻿namespace JAMFProAPIMigration.Interfaces
+﻿using JAMFProAPIMigration.Models.DTOs;
+
+namespace JAMFProAPIMigration.Interfaces
 {
     public interface IFileVault2
     {
-        Task<List<string>> GetFileVault2UsersAsync(string computerId);
+        Task<List<FileVaultInventoryItem>> GetFileVaultInventoryAsync();
     }
 }
