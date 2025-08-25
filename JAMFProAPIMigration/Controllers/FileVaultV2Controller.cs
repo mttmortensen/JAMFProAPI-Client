@@ -18,7 +18,7 @@ namespace JAMFProAPIMigration.Controllers
         [HttpGet("users")]
         public IActionResult GetAllFV2Users()
         {
-
+            var users = _fv2Service.GetFileVaultInventoryAsync();
         }
     }
 }
