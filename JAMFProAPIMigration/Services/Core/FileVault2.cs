@@ -1,4 +1,5 @@
 ﻿using JAMFProAPIMigration.Interfaces;
+using JAMFProAPIMigration.Models.DTOs;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 
@@ -14,40 +15,27 @@ namespace JAMFProAPIMigration.Services.Core
             _client = client;
         }
 
-        public async Task<List<string>> GetFileVault2UsersAsync(string computerId)
+        public async Task<List<FileVaultInventoryItem>> GetFileVaultInventoryAsync()
         {
-            var content = await _client.GetStringAsync($"/api/v1/computers-inventory/{computerId}/filevault", accept: "application/json");
+            var content = await _client.GetStringAsync($"/api/v1/computers-inventory/filevault", accept: "application/json");
 
             try
             {
-                // Future: DTO to replace JObject
-                var json = JObject.Parse(content);
+                // Parse the JSON into an Object
+                var root = JObject.Parse(content);
 
-                // Only proceed if "fileVaultUsers" key exists
-                if (json["fileVaultUsers"] == null)
+                // If results are missing/empty, return empty list. 
+                var results = root["results"] as JArray;
+                if ( results == null || results.Count == 0 ) 
                 {
-                    Console.WriteLine("No FileVault 2 users configured for the specified computer.");
-                    return new List<string>();
+                    return new List<FileVaultInventoryItem>();
                 }
 
-                var fileVaultUsers = json["fileVaultUsers"] as JArray;
-                var users = new List<string>();
 
-                foreach (var user in fileVaultUsers)
-                {
-                    var username = user["username"]?.ToString();
-                    if (!string.IsNullOrEmpty(username))
-                    {
-                        users.Add(username);
-                    }
-                }
-
-                return users;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error parsing JSON: {ex.Message}");
-                return null;
+
             }
 
         }
