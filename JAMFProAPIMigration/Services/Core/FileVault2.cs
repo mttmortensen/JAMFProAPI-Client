@@ -31,11 +31,26 @@ namespace JAMFProAPIMigration.Services.Core
                     return new List<FileVaultInventoryItem>();
                 }
 
+                var list = new List<FileVaultInventoryItem>(results.Count);
+                foreach (var row in results)
+                {
+                    var item = new FileVaultInventoryItem
+                    {
+                        ComputerId = row["ComputerId"]?.ToString(),
+                        Name = row["Name"]?.ToString(),
+                        PersonalRecoveryKey = row["PersonalRecoveryKey"].ToString(),
+                        IndividualKeyStatus = row["IndividualKeyStatus"].ToString()
+                    };
 
+                    list.Add(item);
+                }
+                return list;
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine($"[FileVault2] JSON parse error: {ex.Message}");
+                // Safe fallback
+                return new List<FileVaultInventoryItem>();          
             }
 
         }
