@@ -86,7 +86,7 @@ namespace JAMFProAPIMigration.Services.Core
             var request = CreateRequest(HttpMethod.Get, endpoint, accept);
 
             // 3. Add Auth: Bearer <token>
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer ", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             // 4. Send it with the _client
             var response = await _client.SendAsync(request);
