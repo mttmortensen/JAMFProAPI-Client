@@ -36,10 +36,10 @@ namespace JAMFProAPIMigration.Services.Core
                 {
                     var item = new FileVaultInventoryItem
                     {
-                        ComputerId = row["ComputerId"]?.ToString(),
-                        Name = row["Name"]?.ToString(),
-                        PersonalRecoveryKey = row["PersonalRecoveryKey"].ToString(),
-                        IndividualKeyStatus = row["IndividualKeyStatus"].ToString()
+                        ComputerId = row["computerId"]?.ToString(),
+                        Name = row["name"]?.ToString(),
+                        PersonalRecoveryKey = row["personalRecoveryKey"]?.ToString(),
+                        IndividualKeyStatus = row["individualKeyStatus"]?.ToString()
                     };
 
                     list.Add(item);
